@@ -1,34 +1,38 @@
-print_mqtt("/ready zumo");
+#include <time.h> //include so the time caculation can happen
+time_t start, stop;
 
-RTC_Start(); //initialised in the code
+//prints when robot is ready to start at the line
+print_mqtt(ZUMO,"/ready zumo");
+
+//initialise this at the start of the code
+RTC_Start(); 
 RTC_TIME_DATE now;
-//set current time here, works for the whole code - stop and start
+//set current time here, works for the whole code - stop and start time
 now.Hour = 9;
 now.Min = 31;
 now.Sec = 16;
 RTC_WriteTime(&now); 
 
-int start = now.Hour, now.Min, now.Sec;
-int stop = now.Hour, now.Min, now.Sec; 
-int difference; 
-
-RTC_DisableInt(); //for registering start time, need all 3 lines
+//for registering start time, need all 5 lines
+RTC_DisableInt(); 
  now = *RTC_ReadTime(); 
  RTC_EnableInt(); 
 
-print_mqtt("/start %2d:%02d.%02d\n", start, now.Hour, now.Min, now.Sec);
-scanf(&start);
+print_mqtt(ZUMO,"/start %2d:%02d.%02d\n", now.Hour, now.Min, now.Sec);
+time(&start);
 
-RTC_DisableInt(); //for registering stop time, need all 3 lines
+//for registering stop time, need all 5 lines
+RTC_DisableInt(); 
  now = *RTC_ReadTime(); 
  RTC_EnableInt(); 
 
-print_mqtt("/stop %2d:%02d.%02d\n", stop, now.Hour, now.Min, now.Sec);
-scanf(&stop);
+print_mqtt(ZUMO,"/stop %2d:%02d.%02d\n", now.Hour, now.Min, now.Sec);
+time(&stop);
 
 
-difference = stop - start;
-print_mqtt("/time stop - start = difference", start, stop, difference);
+//for calculating the total time when the robot was fighting
+double time_taken = double(end - start);
+print_mqtt(ZUMO,"/time &2d:%02d.%02d", time_taken);
 
-//on hit
-print_mqtt("/hit hit");
+//on hit prints
+print_mqtt(ZUMO,"/hit hit");
