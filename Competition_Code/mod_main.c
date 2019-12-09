@@ -89,9 +89,9 @@ void line_start(struct sensors_ dig){
 }
 
 //sensor calibration
-long sensorCalibration(long *array,int count){                                          // This function takes an array as a pointer from the main function and will populate it with a weighted average of the refectance sensors
-    long average_array[6] ={0, 0, 0, 0, 0, 0};                                          // based on a sample size of 20 x the number passed as argument. This will set to 2 counts, 1 black and 1 white. The pointed array is then returned
-    int i = 0, j = 0, counter = 0;                                                      // to the main function where the stored values will be used as the thresholds between what is black and what is white.
+long sensorCalibration(long *array,int count){                                              // This function takes an array as a pointer from the main function and will populate it with a weighted average of the refectance sensors
+    long average_array[6] ={0, 0, 0, 0, 0, 0};                                              // based on a sample size of 20 x the number passed as argument. This will set to 2 counts, 1 black and 1 white. The pointed array is then returned
+    int i = 0, j = 0, counter = 0;                                                          // to the main function where the stored values will be used as the thresholds between what is black and what is white.
     struct sensors_ ref;
     reflectance_read(&ref);
     while(i < count){
