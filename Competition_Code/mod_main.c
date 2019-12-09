@@ -434,11 +434,11 @@ void zmain(void)                                                                
 
 // SUMO CHALLENGE MAIN
 #if 0
-void zmain(void)                                                                          // Our main function for SUMO begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
-{                                                                                         // It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready" 
-    LSM303D_Start();                                                                      // and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight until it hits 
-    reflectance_start();                                                                  // the black line where it will reverse, turn and then continue straight again. If an impact is detected above the threshold a print message will be sent 
-    motor_start();                                                                        // stating hit angle and time. Once the robot is no longer in the circle an end and total time within the circle will be printed.
+void zmain(void)                                                                          //  Our main function for SUMO begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
+{                                                                                         //  It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready" 
+    LSM303D_Start();                                                                      //  and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight until it hits 
+    reflectance_start();                                                                  //  the black line where it will reverse, turn and then continue straight again. If an impact is detected above the threshold a print message will be sent 
+    motor_start();                                                                        //  stating hit angle and time. Once the robot is no longer in the circle an end and total time within the circle will be printed.
     IR_Start();
     
     struct sensors_ dig;    
@@ -451,8 +451,8 @@ void zmain(void)                                                                
     LSM303D_Read_Acc(&data);
     reflectance_digital(&dig);
     button_press();
-    sensorCalibration(threshold_dig, 2);                                                                                                        //calibrates the program to differentiate between black and white
-    reflectance_set_threshold(threshold_dig[0], threshold_dig[1], threshold_dig[2], threshold_dig[3], threshold_dig[4], threshold_dig[5]);      //sets the threshold for defining between black or white.
+    sensorCalibration(threshold_dig, 2);                                                                                                        //  calibrates the program to differentiate between black and white
+    reflectance_set_threshold(threshold_dig[0], threshold_dig[1], threshold_dig[2], threshold_dig[3], threshold_dig[4], threshold_dig[5]);      //  sets the threshold for defining between black or white.
     line_start(dig);
     print_mqtt(ZUMO, "/ready zumo");
     IR_wait();
@@ -463,31 +463,31 @@ void zmain(void)                                                                
     LSM303D_Read_Acc(&data);
     reflectance_digital(&dig);
     
-    while(dig.l1 == 0 && dig.l2 == 0 && dig.l3 == 0 && dig.r1 == 0 && dig.r2 == 0 && dig.r3 == 0){                  //while all the reflective sensors read white. 
+    while(dig.l1 == 0 && dig.l2 == 0 && dig.l3 == 0 && dig.r1 == 0 && dig.r2 == 0 && dig.r3 == 0){                  //  while all the reflective sensors read white. 
         LSM303D_Read_Acc(&data);
         reflectance_digital(&dig);
-        if((data.accX >= 13500 || data.accX <= -13500) && hit == 0){                                                //checking the accelerometer for any hits in the front or back of the robot and prints hit angle to mqtt only if hit flag  
-            hit = 1;                                                                                                //is set to 0 so to remove multiple printouts.
+        if((data.accX >= 13500 || data.accX <= -13500) && hit == 0){                                                //  checking the accelerometer for any hits in the front or back of the robot and prints hit angle to mqtt only if hit flag  
+            hit = 1;                                                                                                //  is set to 0 so to remove multiple printouts.
             LSM303D_Read_Acc(&data);
             hit_angle(data.accX, data.accY);                        
             motor_f(100, 10);
         }
-        else if((data.accY >= 13500 || data.accY <= -13500) && hit == 0){                                           //checking the accelerometer for any hits in the sides of the robot and prints hit angle to mqtt  only if hit flag 
-            hit = 1;                                                                                                //is set to 0 so to remove multiple printouts.
+        else if((data.accY >= 13500 || data.accY <= -13500) && hit == 0){                                           //  checking the accelerometer for any hits in the sides of the robot and prints hit angle to mqtt  only if hit flag 
+            hit = 1;                                                                                                //  is set to 0 so to remove multiple printouts.
             LSM303D_Read_Acc(&data);
             hit_angle(data.accX, data.accY);                        
             motor_f(100, 10);
         }
-        if((data.accY <= 13500 || data.accY >= -13500) && (data.accX <= 13500 || data.accX >= -13500)){             //once the robot no longer detects a impact and returns to normal accelerometer range the hit flag will return to 0
-            hit = 0;                                                                                                //allowing for new hits to register.
+        if((data.accY <= 13500 || data.accY >= -13500) && (data.accX <= 13500 || data.accX >= -13500)){             //  once the robot no longer detects a impact and returns to normal accelerometer range the hit flag will return to 0
+            hit = 0;                                                                                                //  allowing for new hits to register.
         }
-        if(dig.l3 == 1 && dig.l2 == 1 && dig.l1 == 1 && dig.r1 == 1 && dig.r2 == 1 && dig.r3 == 1){                 //if all sensors read black, move back, spin and continue to move forward.
+        if(dig.l3 == 1 && dig.l2 == 1 && dig.l1 == 1 && dig.r1 == 1 && dig.r2 == 1 && dig.r3 == 1){                 //  if all sensors read black, move back, spin and continue to move forward.
             motor_backward_left(100, 100, 200);
             spin(200, 500, 1);
             reflectance_digital(&dig);
         }
 
-        else if(dig.r3 == 1 || dig.l3 == 1){                                                                        //if middle 2 sensors read black, spin and continue to move forward.
+        else if(dig.r3 == 1 || dig.l3 == 1){                                                                        //  if middle 2 sensors read black, spin and continue to move forward.
             motor_backward_left(150, 150, 500);
             spin(200, 400, 0);
             reflectance_digital(&dig);
@@ -513,13 +513,13 @@ void zmain(void)                                                                
 
 // LINE FOLLOWING
 #if 1
-void zmain(void)                                                                            // Our main function for LINE FOLLOWING begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
-{                                                                                           // It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready"
-    IR_Start();                                                                             // and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight. The robot
-    reflectance_start();                                                                    // will then begin to follow a line using the reflective sensors deciding how it will move based on which sensors are reading black. The program will also
-    motor_start();                                                                          // notify with a message and timestamp when any of the central sensors move off black and when it returns to following the line. To prevent message
-                                                                                            // spam a flag is used to ensure that only one message of the robot left the line is sent until it returns back to reading black. At the end of the track
-    struct sensors_ dig;                                                                    // the robot will stop on the second perpendicular line by using a counter to detect when all sensors see black at once.
+void zmain(void)                                                                            //  Our main function for LINE FOLLOWING begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
+{                                                                                           //  It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready"
+    IR_Start();                                                                             //  and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight. The robot
+    reflectance_start();                                                                    //  will then begin to follow a line using the reflective sensors deciding how it will move based on which sensors are reading black. The program will also
+    motor_start();                                                                          //  notify with a message and timestamp when any of the central sensors move off black and when it returns to following the line. To prevent message
+                                                                                            //  spam a flag is used to ensure that only one message of the robot left the line is sent until it returns back to reading black. At the end of the track
+    struct sensors_ dig;                                                                    //  the robot will stop on the second perpendicular line by using a counter to detect when all sensors see black at once.
     long threshold_dig[6] = {0, 0, 0, 0, 0, 0};
     TickType_t start;
     TickType_t end;
@@ -530,8 +530,8 @@ void zmain(void)                                                                
     vTaskDelay(100);
     reflectance_digital(&dig);
     button_press();
-    sensorCalibration(threshold_dig, 2);                                                                                                        //calibrates the program to differentiate between black and white
-    reflectance_set_threshold(threshold_dig[0], threshold_dig[1], threshold_dig[2], threshold_dig[3], threshold_dig[4], threshold_dig[5]);      //sets the threshold for defining between black or white.
+    sensorCalibration(threshold_dig, 2);                                                                                                        //  calibrates the program to differentiate between black and white
+    reflectance_set_threshold(threshold_dig[0], threshold_dig[1], threshold_dig[2], threshold_dig[3], threshold_dig[4], threshold_dig[5]);      //  sets the threshold for defining between black or white.
     
     line_start(dig);
     print_mqtt(ZUMO, "/ready line");
@@ -539,41 +539,41 @@ void zmain(void)                                                                
     start = xTaskGetTickCount();
     print_mqtt(ZUMO,"/start %d", start);
     motor_f(150, 150);
-    while(counter < 2){                                                                                                                         //the stop criteria is all sensors reading black twice.
+    while(counter < 2){                                                                                                                         //  the stop criteria is all sensors reading black twice.
         reflectance_digital(&dig);
         
-        if(dig.l3 + dig.l2 + dig.l1 + dig.r1 + dig.r2 + dig.r3 == 6 && isblack == 0){                                                           // checking for all black reading on sensors to then increase the counter by 1. 
+        if(dig.l3 + dig.l2 + dig.l1 + dig.r1 + dig.r2 + dig.r3 == 6 && isblack == 0){                                                           //  checking for all black reading on sensors to then increase the counter by 1. 
             isblack = 1;
             counter++;
         }
-        else if(dig.l2 + dig.l3 >= 1 && dig.l1!= 1 && miss == 0){                                                                               //robot has moved off the line detected on the right hand side of the robot looking down above it.
+        else if(dig.l2 + dig.l3 >= 1 && dig.l1!= 1 && miss == 0){                                                                               //  robot has moved off the line detected on the right hand side of the robot looking down above it.
             print_mqtt(ZUMO,"/miss %d", xTaskGetTickCount());
             miss = 1;
         }
-        else if(dig.r2 + dig.r3 >= 1 && dig.r1!= 1 && miss == 0){                                                                               //robot has moved off the line detected on the left hand side of the robot looking down above it.
+        else if(dig.r2 + dig.r3 >= 1 && dig.r1!= 1 && miss == 0){                                                                               //  robot has moved off the line detected on the left hand side of the robot looking down above it.
             print_mqtt(ZUMO,"/miss %d", xTaskGetTickCount());
             miss = 1;
         }
-        else if(dig.l3 + dig.l2 + dig.l1 + dig.r1 + dig.r2 + dig.r3 < 6){                                                                       // resets the flag for all sensors to detect black again for counter increments.
+        else if(dig.l3 + dig.l2 + dig.l1 + dig.r1 + dig.r2 + dig.r3 < 6){                                                                       //  resets the flag for all sensors to detect black again for counter increments.
             isblack = 0;
         }
-        else if( dig.l1 + dig.r1 >= 1 && miss == 1){                                                                                            // resets the "hit" flag for when the robot leaves the line allowing for new instances to be registered.
+        else if( dig.l1 + dig.r1 >= 1 && miss == 1){                                                                                            //  resets the "hit" flag for when the robot leaves the line allowing for new instances to be registered.
             print_mqtt(ZUMO,"/line %d", xTaskGetTickCount());
             miss = 0;
         }
-        else if (dig.l1 == 1 && dig.r1 == 1 && dig.l3 + dig.l2 + dig.r3 + dig.r2 == 0){                                                         //moving forward
+        else if (dig.l1 == 1 && dig.r1 == 1 && dig.l3 + dig.l2 + dig.r3 + dig.r2 == 0){                                                         //  moving forward
             motor_f(225, 0);
         }
-        else if(dig.l1 + dig.l2 == 2 && dig.l3 + dig.r2 + dig.r3 == 0){                                                                         //slight turn right
+        else if(dig.l1 + dig.l2 == 2 && dig.l3 + dig.r2 + dig.r3 == 0){                                                                         //  slight turn right
             motor_turn(0,225,0);
         }
-        else if(dig.r1 + dig.r2 == 2 && dig.l3 + dig.l2 + dig.r3 == 0){                                                                         //slight turn left
+        else if(dig.r1 + dig.r2 == 2 && dig.l3 + dig.l2 + dig.r3 == 0){                                                                         //  slight turn left
             motor_turn(225,0,0);
         }
-        else if(dig.l2 + dig.l3 == 2 && dig.l1 + dig.r1 + dig.r2 + dig.r3 == 0){                                                                //greater turn right
+        else if(dig.l2 + dig.l3 == 2 && dig.l1 + dig.r1 + dig.r2 + dig.r3 == 0){                                                                //  greater turn right
             motor_turn(0, 225, 0);          
         }
-        else if(dig.r2 + dig.r3 == 2 && dig.l1 + dig.r1 + dig.l2 + dig.l3 == 0){                                                                //greater turn left
+        else if(dig.r2 + dig.r3 == 2 && dig.l1 + dig.r1 + dig.l2 + dig.l3 == 0){                                                                //  greater turn left
             motor_turn(225, 0, 0); 
         }
     }
