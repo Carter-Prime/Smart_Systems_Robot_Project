@@ -104,7 +104,6 @@ void line_start(struct sensors_ *ref){
             
         
     }
-    print_mqtt("Zumo102/ready","line");
     motor_forward(0,0);
 }
 
@@ -142,21 +141,31 @@ long sensorCalibration(long *array,int count){                                  
 
 //calculates hit angle
 void hit_angle(double x, double y){                                                        // This function will take the accelerometer readings for the x and y axis and then based on the signed 
-    TickType_t hit;                                                                        // value of x will calculate the angle that the hit came from and print a message through mqtt.
+    TickType_t hit;                                                                        // value of x and y will calculate the angle that the hit came from and print a message through mqtt.
     float hit_x = x/16000;
     float hit_y = y/16000;
     double angle;
     hit = xTaskGetTickCount();
     float value = hit_x/hit_y;
-    if (x < 0){
-        angle =((atan(value))*180)/M_PI;
-        angle = 270 - angle;
-        print_mqtt("Zumo102/hit","%d %.2f", hit, angle);
-    }
-    else{
+    if (y < 0 && x < 0){                                                                  // Front hit
         angle =((atan(value))*180)/M_PI;
         angle = 90 - angle;
-        print_mqtt("Zumo102/hit","%d %.2f", hit, angle);
+        print_mqtt("Zumo102/hit", "%lu %.2f", hit, angle);
+    }
+    else if(y > 0 && x > 0){                                                             // Back hit
+        angle =((atan(value))*180)/M_PI;
+        angle = 180 - angle;
+        print_mqtt("Zumo102/hit", "%lu %.2f", hit, angle);
+    }
+    else if(y > 0 && x < 0){                                                             // Right side hit
+        angle =((atan(value))*180)/M_PI;
+        angle = 90 + angle;
+        print_mqtt("Zumo102/hit", "%lu %.2f", hit, angle);
+    }
+    else if(y < 0 && x > 0){                                                             // Left side hit
+        angle =((atan(value))*180)/M_PI;
+        angle = 270 - angle;
+        print_mqtt("Zumo102/hit", "%lu %.2f", hit, angle);
     }
 }
 
@@ -452,7 +461,7 @@ void zmain(void)                                                                
 
 
 // SUMO CHALLENGE MAIN
-#if 0
+#if 1
 void zmain(void)                                                                          //  Our main function for SUMO begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
 {                                                                                         //  It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready" 
     LSM303D_Start();                                                                      //  and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight until it hits 
@@ -488,30 +497,28 @@ void zmain(void)                                                                
     while(dig.l1 == 0 && dig.l2 == 0 && dig.l3 == 0 && dig.r1 == 0 && dig.r2 == 0 && dig.r3 == 0){                  //  while all the reflective sensors read white. 
         LSM303D_Read_Acc(&data);
         reflectance_digital(&dig);
-        if((data.accX >= 13500 || data.accX <= -13500) && hit == 0){                                                //  checking the accelerometer for any hits in the front or back of the robot and prints hit angle to mqtt only if hit flag  
+        if((data.accX >= 12500 || data.accX <= -12500) && hit == 0){                                                //  checking the accelerometer for any hits in the front or back of the robot and prints hit angle to mqtt only if hit flag  
             hit = 1;                                                                                                //  is set to 0 so to remove multiple printouts.
-            LSM303D_Read_Acc(&data);
             hit_angle(data.accX, data.accY);                        
             motor_f(100, 10);
         }
-        else if((data.accY >= 13500 || data.accY <= -13500) && hit == 0){                                           //  checking the accelerometer for any hits in the sides of the robot and prints hit angle to mqtt  only if hit flag 
-            hit = 1;                                                                                                //  is set to 0 so to remove multiple printouts.
-            LSM303D_Read_Acc(&data);
+        else if((data.accY >= 12500 || data.accY <= -12500) && hit == 0){                                           //  checking the accelerometer for any hits in the sides of the robot and prints hit angle to mqtt  only if hit flag 
+            hit = 1;                                                                                                //  is set to 0 so to remove multiple printouts.            
             hit_angle(data.accX, data.accY);                        
             motor_f(100, 10);
         }
-        if((data.accY <= 13500 || data.accY >= -13500) && (data.accX <= 13500 || data.accX >= -13500)){             //  once the robot no longer detects a impact and returns to normal accelerometer range the hit flag will return to 0
+        if((data.accY <= 12500 || data.accY >= -12500) && (data.accX <= 12500 || data.accX >= -12500)){             //  once the robot no longer detects a impact and returns to normal accelerometer range the hit flag will return to 0
             hit = 0;                                                                                                //  allowing for new hits to register.
         }
         if(dig.l3 == 1 && dig.l2 == 1 && dig.l1 == 1 && dig.r1 == 1 && dig.r2 == 1 && dig.r3 == 1){                 //  if all sensors read black, move back, spin and continue to move forward.
-            motor_backward_left(100, 100, 200);
+            motor_backward_left(150, 150, 200);
             spin(200, 500, 1);
             reflectance_digital(&dig);
         }
 
         else if(dig.r3 == 1 || dig.l3 == 1){                                                                        //  if middle 2 sensors read black, spin and continue to move forward.
-            motor_backward_left(150, 150, 500);
-            spin(200, 400, 0);
+            motor_backward_left(100, 150, 500);
+            spin(150, 400, 0);
             reflectance_digital(&dig);
         } 
         else{                                                                                                       //if all sensors are reading white still continue to move forward
@@ -534,7 +541,7 @@ void zmain(void)                                                                
 #endif
 
 // LINE FOLLOWING
-#if 1
+#if 0
 void zmain(void)                                                                            //  Our main function for LINE FOLLOWING begins with a calibration of the sensors by setting thresholds for digitally recognising between black and white.
 {                                                                                           //  It then moves onto waiting for the user button to be pressed which will then call function to move to the starting line and printing out "ready"
     IR_Start();                                                                             //  and will then wait for an IR signal. Once signal is received the robot will move forward off the black line and begin moving straight. The robot
@@ -552,6 +559,7 @@ void zmain(void)                                                                
     bool mem = 0;
 
     line_start(&ref);
+    print_mqtt("Zumo102/ready","line");
     IR_wait();
     start = xTaskGetTickCount();
     print_mqtt("Zumo102/start","%d",start);
